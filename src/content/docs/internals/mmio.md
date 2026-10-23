@@ -28,7 +28,7 @@ This example changes PB6's mode field, which occupies bits 13:12 of port B's `MO
 
 ## Using the helpers
 
-A register name such as `RCC_AHB4ENR` is already a pointer. Pass it directly to the helpers, without adding `&`. A field name such as `RCC_AHB4ENR_GPIOBEN` describes which bits to access in that register.
+A register name such as `RCC_AHB4ENR` is already a pointer. Pass it directly to the helpers. A field name such as `RCC_AHB4ENR_GPIOBEN` describes which bits to access in that register.
 
 The types tell you the register’s width and whether the pointer allows writes. For example, `rw_reg32_t` is a pointer to a volatile 32-bit value, while `ro_reg32_t` points to a const volatile value. `volatile` keeps the compiler from treating hardware accesses like ordinary cached values. It doesn't make an operation atomic or provide a lock.
 
@@ -36,8 +36,6 @@ A `field32_t` has two members:
 
 - `msk`: a mask with ones at the field’s bit positions.
 - `pos`: the position of the field’s lowest bit.
-
-Pass an **unshifted value** to `WRITE_FIELD`. The macro shifts it into place and masks off bits outside the field. `READ_FIELD` shifts the result back down. In the example, pass `2U`, not `2U << 12`.
 
 | Helper | What it does |
 | --- | --- |
@@ -112,8 +110,3 @@ The helpers don't return an error code. Check caller-supplied values with `IN_RA
 Check each array’s definition in `mmio.c` before indexing it. The conventions differ: `I2Cx_CR1[1]` means I2C1, while `GPIOx_MODER[0]` means port A and `[1]` means port B. An array slot can be unpopulated even when the index is within its declared size.
 
 A read-modify-write operation can overwrite another writer’s change between its read and write. Coordinate access if interrupts or another core can modify the same register. These macros don't handle that coordination, enable peripheral clocks, or check whether hardware allows a setting to change while enabled.
-
-## Known issues
-
-`MAKE_FIELD(type, position, width)` is intended to build a field definition, but its current `pos` macro parameter also replaces the `.pos` member name. A call such as `MAKE_FIELD(field32_t, 4, 2)` therefore fails to compile. Use existing named fields or an explicit initializer like the one above until the macro is fixed. Its mask calculation also needs a special case for a 64-bit-wide field; shifting a 64-bit value by 64 is invalid.
-
