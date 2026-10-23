@@ -1,0 +1,69 @@
+---
+interface Props { source: string; label: string; }
+const { source, label } = Astro.props;
+---
+
+<figure class="system-diagram">
+  <div class="diagram-scroll" role="region" aria-label={label}>
+    <div data-mermaid-diagram data-source={source}>
+      <p>Loading diagram. The system flow is also described below.</p>
+    </div>
+  </div>
+  <figcaption>Arrows show data and command flow, not a fixed execution order. </figcaption>
+</figure>
+
+<script>
+  import mermaid from 'mermaid';
+
+  const diagrams = document.querySelectorAll<HTMLElement>('[data-mermaid-diagram]');
+  if (diagrams.length) {
+    (async () => {
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'base',
+        themeVariables: {
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: '16px',
+          primaryColor: '#eeebfa',
+          primaryTextColor: '#272036',
+          primaryBorderColor: '#74619b',
+          lineColor: '#59616e',
+          clusterBkg: '#f8f7fc',
+          clusterBorder: '#b9afce',
+          edgeLabelBackground: '#ffffff',
+        },
+        flowchart: { htmlLabels: false, useMaxWidth: false, curve: 'linear', nodeSpacing: 20, rankSpacing: 28 },
+      });
+      for (const [index, element] of Array.from(diagrams).entries()) {
+        const { svg } = await mermaid.render(`system-diagram-${index}`, element.dataset.source || '');
+        element.innerHTML = svg;
+      }
+    })().catch((error) => {
+      console.error("Unable to render Mermaid diagram:", error);
+      for (const element of diagrams) element.textContent = 'The diagram could not load. Read the system flow below.';
+    });
+  }
+</script>
+
+<style>
+  .system-diagram { margin: 1.5rem 0; }
+  .diagram-scroll { background: transparent; }
+  .diagram-scroll :global(svg) {
+    display: block;
+    width: 100%;
+    max-height: min(420px, 65svh);
+    height: auto;
+    margin-inline: auto;
+  }
+  .diagram-scroll :global(.node rect),
+  .diagram-scroll :global(.node polygon) {
+    fill: var(--sl-color-gray-6) !important;
+    stroke: var(--sl-color-gray-3) !important;
+  }
+  .diagram-scroll :global(.nodeLabel) { color: var(--sl-color-text) !important; }
+  .diagram-scroll :global(text) { fill: var(--sl-color-text) !important; }
+  .diagram-scroll :global(.flowchart-link) { stroke: var(--sl-color-gray-2) !important; }
+  .diagram-scroll :global(marker path) { fill: var(--sl-color-gray-2) !important; stroke: var(--sl-color-gray-2) !important; }
+  figcaption { margin-top: 0.5rem; color: var(--sl-color-gray-2); font-size: var(--sl-text-sm); }
+</style>

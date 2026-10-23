@@ -1,0 +1,115 @@
+---
+import DefaultContent from '@astrojs/starlight/components/MarkdownContent.astro';
+---
+
+<DefaultContent><slot /></DefaultContent>
+
+<script>
+  import { fundamentalDefinitions } from '../data/fundamental-definitions';
+
+  const prefix = '/architecture/peripheral/fundamentals/';
+  const tooltip = document.createElement('div');
+  tooltip.id = 'fundamentals-tooltip';
+  tooltip.className = 'fundamentals-tooltip';
+  tooltip.setAttribute('role', 'tooltip');
+  tooltip.hidden = true;
+  document.body.append(tooltip);
+
+  let activeLink: HTMLAnchorElement | undefined;
+  let previousDescription: string | null = null;
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function cancelClose() {
+    clearTimeout(closeTimer);
+  }
+
+  function hide() {
+    cancelClose();
+    tooltip.hidden = true;
+    if (activeLink) {
+      if (previousDescription === null) activeLink.removeAttribute('aria-describedby');
+      else activeLink.setAttribute('aria-describedby', previousDescription);
+    }
+    activeLink = undefined;
+  }
+
+  function scheduleClose() {
+    cancelClose();
+    closeTimer = setTimeout(() => {
+      if (document.activeElement !== activeLink && !tooltip.matches(':hover')) hide();
+    }, 150);
+  }
+
+  function show(link: HTMLAnchorElement, definition: string) {
+    cancelClose();
+    if (activeLink !== link) {
+      hide();
+      activeLink = link;
+      previousDescription = link.getAttribute('aria-describedby');
+      link.setAttribute('aria-describedby', [previousDescription, tooltip.id].filter(Boolean).join(' '));
+    }
+    tooltip.textContent = definition;
+    tooltip.hidden = false;
+
+    const rect = link.getBoundingClientRect();
+    const box = tooltip.getBoundingClientRect();
+    const margin = 12;
+    const left = Math.max(margin, Math.min(rect.left, window.innerWidth - box.width - margin));
+    const below = rect.bottom + 8;
+    const top = below + box.height <= window.innerHeight - margin
+      ? below
+      : Math.max(margin, rect.top - box.height - 8);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>('.sl-markdown-content a[href]:not(.sl-anchor-link)').forEach((link) => {
+    const url = new URL(link.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith(prefix)) return;
+    const key = url.pathname.slice(prefix.length) + url.hash;
+    const definition = fundamentalDefinitions[key];
+    if (!definition) return;
+
+    link.classList.add('fundamentals-term');
+    link.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'mouse') show(link, definition);
+    });
+    link.addEventListener('pointerleave', scheduleClose);
+    link.addEventListener('focus', () => show(link, definition));
+    link.addEventListener('blur', scheduleClose);
+    link.addEventListener('click', hide);
+  });
+
+  tooltip.addEventListener('pointerenter', cancelClose);
+  tooltip.addEventListener('pointerleave', scheduleClose);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') hide();
+  });
+  // Dismiss stale positioning without interfering with page or sidebar scrolling.
+  window.addEventListener('scroll', hide, { capture: true, passive: true });
+  window.addEventListener('resize', hide);
+</script>
+
+<style is:global>
+  .sl-markdown-content a.fundamentals-term {
+    text-decoration-style: dotted;
+    text-underline-offset: 0.2em;
+  }
+  .fundamentals-tooltip {
+    position: fixed;
+    z-index: 100;
+    box-sizing: border-box;
+    width: max-content;
+    max-width: min(21rem, calc(100vw - 24px));
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.4rem;
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-text);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+  .fundamentals-tooltip[hidden] { display: none; }
+</style>

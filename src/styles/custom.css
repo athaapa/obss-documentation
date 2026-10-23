@@ -1,0 +1,4 @@
+/* Keep the header logo close to the site title. */
+.site-title {
+  gap: 0.5rem;
+}

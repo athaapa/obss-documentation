@@ -1,0 +1,9 @@
+flowchart LR
+  accTitle: OBSS data and control flow
+  accDescr: Sensors send measurements through peripheral and device drivers to the application. The application controls actuators through drivers, records data, and exchanges telemetry and commands with ground systems.
+  sensors["Sensors / ADC"] --> drivers["Peripheral +<br/>device drivers"]
+  drivers --> app["Application<br/>State and control"]
+  app --> outputs["Output drivers<br/>and actuators"]
+  app --> storage["Storage / logs"]
+  app <--> comms["Packets +<br/>comms drivers"]
+  comms <--> ground["Ground systems"]

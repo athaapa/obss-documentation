@@ -1,0 +1,29 @@
+---
+title: Architecture overview
+sidebar:
+  order: 0
+---
+
+Titan is SARP’s flight computer software. We read sensors, use those readings and incoming commands to decide what to do, control hardware, and report what happened to the ground.
+
+## Software layers
+
+We split the software into application, device, and peripheral layers.
+
+### Application
+
+The [application layer](/architecture/application/) is where we decide what the flight computer should do. This includes the state machine and code for handling sensor data, packets, and valves. The code lives in `src/app/`.
+
+### Device
+
+The [device layer](/architecture/device/) is where we handle individual chips on the board, like the barometer, radio, and temperature sensor. Each chip has its own commands and register layout. We put those details in a driver so application code can use the device without building each command itself. The code lives in `src/devices/`.
+
+### Peripheral
+
+The [peripheral layer](/architecture/peripheral/) is where we control hardware built into the microcontroller, like SPI, I2C, UART, and GPIO. Here we configure pins, set up clocks, and move bytes between the microcontroller and external chips. The code lives in `src/peripheral/`.
+
+For example, reading a sensor involves two different jobs: choosing the sensor’s command and sending it over the wires. We handle the command in the device driver and the transfer in the peripheral driver.
+
+### Internals
+
+We also keep low-level support code in `src/internal/`. See [Internals](/internals/) for those pieces.

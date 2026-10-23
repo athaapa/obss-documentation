@@ -1,0 +1,39 @@
+---
+title: Find pins in Altium
+sidebar:
+  order: 3
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Use the board schematic, STM32 datasheet, and Titan GPIO lookup table to find the pin numbers and alternate functions for a signal.
+
+<Steps>
+
+1. ## Find the pins in Altium
+
+   The board's Altium project shows which chip pins connect to each device. Open `titan_flight_computer_controller_board`, then go to *Source Documents* > *titan_flight_computer_controller_board* > *MCU_IO*. That sheet lists the microcontroller's pins. Each pin has a *net label* that names the wire it connects to. A net is everything one wire connects together.
+
+   Use <kbd>Ctrl</kbd>+<kbd>F</kbd> to search for the signal’s net name. <kbd>Alt</kbd>+click a wire to highlight its whole net. Follow the net to the microcontroller and record its GPIO name, such as `PB6` (port B, pin 6).
+
+2. ## Check the pin’s function
+
+   Check the datasheet for the microcontroller and package used on your board. For a peripheral signal, find the GPIO pin in the alternate-function table and locate the function you need. Record both the peripheral instance and the alternate function (AF) number. A pin may support several functions, so use the entry that matches your intended peripheral.
+
+   For a plain GPIO input or output, you do not need an alternate function. For an analog signal, check the pin’s analog capabilities and channel mapping instead.
+
+3. ## Get the Titan pin number
+
+   Titan's GPIO functions, like `tal_set_mode()`, don't take names like `PB6`. They take the chip's *package pin number*, the number of the physical leg the pin sits on. A comment near the top of `src/peripheral/gpio.h` has a lookup table:
+
+   ```c
+   //    0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15     PORT
+       {37 ,38 ,39 ,40 ,43 ,44 ,45 ,46 ,97 ,98 ,99 ,100,101,102,107,108}, // A
+       {49 ,50 ,51 ,130,131,132,133,134,136,137,66 ,67 ,72 ,73 ,74 ,75 }, // B
+   ```
+
+   Use the row for the port letter and the column for the pin number. Row B, column 6 gives 133 for PB6. Column 7 gives 134 for PB7. A `0` marks an unavailable entry in the lookup table. Check the package pin number against the pinout table for your board’s exact microcontroller package.
+
+   Record the net name, GPIO name, Titan pin number, and any peripheral instance or alternate function you need. Use those values when configuring the driver.
+
+</Steps>
