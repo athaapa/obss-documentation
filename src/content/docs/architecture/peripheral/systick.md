@@ -1,5 +1,7 @@
 ---
 title: SysTick
+authors:
+  - Ayush Thapa
 ---
 
 SysTick is a timer built into the CPU core. We use it to count time, wait between operations, and stop drivers from waiting forever when hardware doesn't answer. The code is in `src/peripheral/systick.c` and `src/peripheral/systick.h`.

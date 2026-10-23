@@ -2,6 +2,8 @@
 title: Peripheral overview
 sidebar:
   order: 0
+authors:
+  - Ayush Thapa
 ---
 
 The peripheral layer is where we control hardware built into the microcontroller. This includes communication interfaces like SPI, I2C, and UART, along with GPIO, timers, and other support hardware. The code lives in `src/peripheral/`.

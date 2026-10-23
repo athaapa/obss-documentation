@@ -7,10 +7,12 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'SARP OBSS',
+      lastUpdated: true,
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/sarp-uw/titan' },
       ],
       components: {
+        PageTitle: './src/components/PageTitle.astro',
         MarkdownContent: './src/components/MarkdownContent.astro',
         SocialIcons: './src/components/SocialIcons.astro',
       },

@@ -1,5 +1,7 @@
 ---
 title: Error handling (ERRC)
+authors:
+  - Ayush Thapa
 ---
 
 We use `enum ti_errc_t` to report what went wrong in a driver. `TI_ERRC_NONE` means success; the other values describe a failure. The definitions are in `src/peripheral/errc.h`. The flash-backed logger is in `src/peripheral/errc.c`.

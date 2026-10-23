@@ -2,6 +2,8 @@
 title: Device overview
 sidebar:
   order: 0
+authors:
+  - Ayush Thapa
 ---
 
 The device layer is where we handle the chips connected to the microcontroller, like the barometer, radio, and temperature sensor. The code lives in `src/devices/`.

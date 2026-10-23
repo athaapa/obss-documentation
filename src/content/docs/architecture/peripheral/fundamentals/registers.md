@@ -2,6 +2,8 @@
 title: Registers
 sidebar:
   order: 1
+authors:
+  - Ayush Thapa
 ---
 
 We use registers to configure hardware and read its status. A register holds bits, but the hardware gives those bits a specific meaning: enable a peripheral, choose a mode, report an error, or hold a byte of data.

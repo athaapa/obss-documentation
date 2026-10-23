@@ -2,6 +2,8 @@
 title: GPIO and electrical signals
 sidebar:
   order: 2
+authors:
+  - Ayush Thapa
 ---
 
 GPIO means *general-purpose input/output*. We use it to configure the microcontroller’s pins and read or change their logic levels.

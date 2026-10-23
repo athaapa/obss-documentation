@@ -1,5 +1,7 @@
 ---
 title: MMIO
+authors:
+  - Ayush Thapa
 ---
 
 MMIO means *memory-mapped input/output*. We control the microcontroller's hardware by reading and writing values at specific memory addresses. Each address refers to a [register](/architecture/peripheral/fundamentals/registers/#memory-mapped-registers), and each register has bits that control a setting or report what the hardware is doing. For example, setting one bit can turn on the clock for a GPIO port.

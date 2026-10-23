@@ -1,5 +1,7 @@
 ---
 title: I2C
+authors:
+  - Ayush Thapa
 ---
 
 The I2C driver lets the flight computer talk to small chips, like sensors, over two shared wires. SCL carries the clock and SDA carries the data. Our microcontroller is the *controller*: it runs the clock and starts every conversation. The chips it talks to are *targets*. Older docs call these "master" and "slave." Each target on the bus has its own 7-bit *address*, like `0x40`, so the controller can pick which one it's talking to.

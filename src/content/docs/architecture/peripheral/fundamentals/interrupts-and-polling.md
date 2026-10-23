@@ -2,6 +2,8 @@
 title: Interrupts and polling
 sidebar:
   order: 4
+authors:
+  - Ayush Thapa
 ---
 
 Hardware doesn't finish work at the same speed as the CPU. A driver needs a way to find out when a transfer finishes, data arrives, or an error occurs.

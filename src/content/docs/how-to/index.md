@@ -2,6 +2,8 @@
 title: How-to guides
 sidebar:
   order: 0
+authors:
+  - Ayush Thapa
 ---
 
 These guides cover tasks you'll run into while working on Titan, from finding a pin on the board to testing a driver. Pick the guide for what you're trying to do.

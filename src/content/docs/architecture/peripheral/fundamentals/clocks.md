@@ -2,6 +2,8 @@
 title: Clocks
 sidebar:
   order: 3
+authors:
+  - Ayush Thapa
 ---
 
 A clock is a signal that repeats at a steady rate. We call each repetition a *cycle*, or tick. Hardware uses these ticks to time its work. A timer counts them to measure a delay, and a communication peripheral uses them to decide when to send the next bit.

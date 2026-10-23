@@ -1,0 +1,16 @@
+---
+import DefaultPageTitle from '@astrojs/starlight/components/PageTitle.astro';
+
+const authors = Astro.locals.starlightRoute.entry.data.authors ?? [];
+---
+
+<DefaultPageTitle />
+{authors.length > 0 && <p class="authors">By {authors.join(', ')}</p>}
+
+<style>
+  .authors {
+    margin-top: 0.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+  }
+</style>

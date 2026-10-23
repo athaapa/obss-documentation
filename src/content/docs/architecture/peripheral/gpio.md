@@ -1,5 +1,7 @@
 ---
 title: GPIO
+authors:
+  - Ayush Thapa
 ---
 
 GPIO means *general-purpose input/output*. We use these pins to read a high or low voltage, or to drive a signal high or low. An input could tell us whether a device is ready. An output could control a chip's enable signal. We can also hand a pin over to a peripheral, like I2C or SPI, using [alternate function mode](/architecture/peripheral/fundamentals/gpio/#alternate-functions).
