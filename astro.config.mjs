@@ -6,7 +6,7 @@ export default defineConfig({
   vite: { optimizeDeps: { include: ['mermaid'] } },
   integrations: [
     starlight({
-      title: 'SARP OBSS',
+      title: 'Titan',
       lastUpdated: true,
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/sarp-uw/titan' },

@@ -1,5 +1,5 @@
 flowchart LR
-  accTitle: OBSS data and control flow
+  accTitle: Titan data and control flow
   accDescr: Sensors send measurements through peripheral and device drivers to the application. The application controls actuators through drivers, records data, and exchanges telemetry and commands with ground systems.
   sensors["Sensors / ADC"] --> drivers["Peripheral +<br/>device drivers"]
   drivers --> app["Application<br/>State and control"]

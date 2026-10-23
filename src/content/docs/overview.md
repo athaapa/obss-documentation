@@ -1,10 +1,10 @@
 ---
-title: SARP OBSS
+title: Titan
 authors:
   - Ayush Thapa
 ---
 
-We write the onboard systems software (OBSS) for SARP, the rocket team at the University of Washington. Titan is our flight computer software. We use it to read sensors, communicate with other systems, and control hardware on the rocket.
+Titan is the current flight computer for SARP, the rocket team at the University of Washington. We write its onboard software to read sensors, communicate with other systems, and control hardware on the rocket.
 
 ## How the software fits together
 
