@@ -26,9 +26,9 @@ void example(void) {
 }
 ```
 
-This example changes PB6's mode field, which occupies bits 13:12 of port B's `MODER` register. We pass `2U`, and `WRITE_FIELD` puts it in the right position. This only selects alternate function mode; configuring a peripheral signal also needs an AF selection and the right electrical settings. Use the [GPIO driver](/architecture/peripheral/gpio/) for that setup.
+This example changes PB6's mode field, which occupies bits 13:12 of port B's `MODER` register. Pass `2U`; `WRITE_FIELD` puts it in the right position. This only selects alternate function mode; configuring a peripheral signal also needs an AF selection and the right electrical settings. Use the [GPIO driver](/architecture/peripheral/gpio/) for that setup.
 
-## Using the helpers
+## Usage
 
 A register name such as `RCC_AHB4ENR` is already a pointer. Pass it directly to the helpers. A field name such as `RCC_AHB4ENR_GPIOBEN` describes which bits to access in that register.
 
@@ -51,7 +51,7 @@ A `field32_t` has two members:
 
 `SET_FIELD` on a multi-bit field selects its all-ones value. To select a particular mode or divider, use `WRITE_FIELD`.
 
-### Checking values and building fields
+### Field validation and construction
 
 `WRITE_FIELD` masks the value; it doesn't report an out-of-range argument. Check with `IN_RANGE_FIELD` when a value comes from a caller.
 
@@ -76,15 +76,15 @@ void field_example(void) {
 
 `TO_FIELD(value, field)` shifts and masks a value without reading or writing a register. It can help assemble a complete register value when the reference manual calls for a single write.
 
-## What `WRITE_FIELD` does
+## Read-modify-write operations
 
-First, the macro reads the register's current value. It clears the bits covered by the field's mask, shifts the value you supplied into place, and combines it with the bits outside the field. Then it writes the result back to the register. We call this a *read-modify-write* operation.
+First, `WRITE_FIELD` reads the register's current value. It clears the bits covered by the field's mask, shifts the value you supplied into place, and combines it with the bits outside the field. Then it writes the result back to the register. We call this a *read-modify-write* operation.
 
 For PB6's mode, the mask is `0x3000` and the position is `12`. Writing `2U` places `0x2000` in those bits. The macro preserves the other bits from the value it read.
 
 `READ_FIELD` works in the other direction: it reads the register, masks off the other bits, and shifts the field down to bit zero. Reading that mode gives `2`, rather than `0x2000`.
 
-## Write-only registers and clearing flags
+## Write-only registers and flag clearing
 
 The ordinary write, set, clear, and toggle helpers all **read the register before writing it**. That isn't appropriate for every hardware register.
 
@@ -101,7 +101,7 @@ SET_WO_FIELD(I2Cx_ICR[1], I2Cx_ICR_STOPCF);
 
 Don't use `CLR_FIELD` just because you want to “clear” a flag. Follow the register’s documented access rules. The `_WO_` helpers overwrite the whole register value, so they also aren't substitutes for preserving unrelated configuration fields.
 
-## When things go wrong
+## Troubleshooting
 
 If a setting reads back as zero, check that you enabled the peripheral's clock and used the right register and field. If you passed a value that was already shifted, `WRITE_FIELD` shifts it again and may mask it away. Pass the value as it appears in the reference manual's field table.
 

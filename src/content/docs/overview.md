@@ -6,7 +6,7 @@ authors:
 
 Titan is the current flight computer for SARP, the rocket team at the University of Washington. We write its onboard software to read sensors, communicate with other systems, and control hardware on the rocket.
 
-## How the software fits together
+## Software architecture
 
 We organize the code into three main layers:
 
@@ -16,6 +16,6 @@ We organize the code into three main layers:
 
 Start with the [architecture overview](/architecture/) for a closer look at the layers and where their code lives. From there, each layer has pages for its individual parts. Many pages are still TODOs as we fill in the docs.
 
-## Working on the board
+## Development guides
 
 The [how-to guides](/how-to/) cover tasks like finding pins in Altium, building and flashing the firmware, testing, and debugging.

@@ -28,17 +28,17 @@ A *clock source* supplies the repeating signal. An *oscillator* is the circuit t
 
 A *divider* slows a clock down. Dividing 64 MHz by 16 gives 4 MHz: one output tick for every 16 input ticks. At 4 MHz, each tick takes 0.25 microseconds. A microsecond is one thousandth of a millisecond.
 
-A clock selector chooses which source to use. Before selecting a source, we turn it on and wait for the hardware to report that it is ready. Selecting HSI and turning HSI on are separate settings.
+A clock selector chooses which source to use. Before selecting a source, turn it on and wait for the hardware to report that it is ready. Selecting HSI and turning HSI on are separate settings.
 
-## The clock tree
+## Clock tree
 
 The CPU and peripherals can use different sources and dividers. The reference manual calls these connected clock paths the *clock tree*.
 
-## Enabling a peripheral clock
+## Peripheral clock enables
 
 The chip can stop supplying clocks to hardware we aren't using to save power. A *clock enable* lets the clock reach that hardware. We set these enables through RCC, short for *reset and clock control*. Its [registers](/architecture/peripheral/fundamentals/registers/#memory-mapped-registers) control the clock sources and their connections.
 
-Clock enable and peripheral enable are separate settings. We can supply a peripheral's clock while keeping the peripheral disabled to configure it. Once the settings are ready, we enable the peripheral. Starting a transfer takes another step.
+Clock enable and peripheral enable are separate settings. We can supply a peripheral's clock while keeping the peripheral disabled to configure it. Once the settings are ready, enable the peripheral. Starting a transfer takes another step.
 
 A GPIO clock serves the whole port. Turning off port B's clock can affect other pins on that port, even if we only meant to stop using PB6.
 
@@ -61,7 +61,7 @@ Five microseconds low plus five high gives a ten-microsecond cycle. That is 100,
 
 Some timing fields store one less than the count. Here, `PRESC = 15` means divide by 16, and `SCLL = 19` means count 20 ticks. Check the field's formula before choosing its value.
 
-## When things go wrong
+## Troubleshooting
 
 If a peripheral doesn't respond, check that its source is ready and its required clocks are enabled. If it runs at the wrong speed, check the selected source, dividers, and timing fields.
 

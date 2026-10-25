@@ -10,5 +10,5 @@ A peripheral driver controls hardware built into the microcontroller, like I2C, 
 
 We put peripheral drivers in `src/peripheral/`, with declarations in `<name>.h` and the implementation in `<name>.c`.
 
-## Start with the reference manual
+## Reference manual
 TODO

@@ -13,7 +13,6 @@ These guides cover tasks you'll run into while working on Titan, from finding a 
 - [Build and flash](/how-to/build-and-flash/): Compile the firmware and load it onto the board. **TODO**
 - [Test the firmware](/how-to/testing/): Check that your code and hardware behave as expected. **TODO**
 - [Debug the firmware](/how-to/debugging/): Track down a problem when something isn't working. **TODO**
-
 - [Write a peripheral driver](/how-to/write-a-driver/): Configure microcontroller registers, clocks, and pins, then implement operations, timeouts, and recovery.
 
 For how the code fits together, start with the [architecture overview](/architecture/). Individual driver pages cover their APIs and hardware setup.

@@ -18,9 +18,9 @@ The reference manual explains what sets each flag and how to clear it. Some flag
 
 With *polling*, the driver reads a flag until the condition it needs is true. This is simple, but a tight polling loop keeps the CPU busy and blocks the caller.
 
-A loop that waits for hardware should have a way to give up. Save a starting time, check for errors while waiting, and return a timeout if the operation takes too long. See [SysTick timeouts](/architecture/peripheral/systick/#using-it-for-timeouts) for an example.
+Use a timeout to limit how long a loop waits for hardware. Save a starting time, check for errors while waiting, and return a timeout if the operation takes too long. See [SysTick timeouts](/architecture/peripheral/systick/#timeouts) for an example.
 
-The [I2C driver](/architecture/peripheral/i2c/#what-happens-during-a-transfer) polls status flags while sending and receiving bytes.
+The [I2C driver](/architecture/peripheral/i2c/#transfer-sequence) polls status flags while sending and receiving bytes.
 
 ## Interrupts
 

@@ -32,4 +32,4 @@ A *pull-down resistor* does the reverse: it brings an otherwise undriven line lo
 
 Electrical noise can cause short pulses that look like real signal changes. Some peripherals provide input filters to reject these glitches.
 
-Filtering also affects timing. A filter must reject unwanted pulses without hiding valid ones, so its settings depend on the peripheral and signal speed. Keep the actual configuration in the driver documentation; see [I2C initialization](/architecture/peripheral/i2c/#what-i2c_init-does) for an example.
+Filtering also affects timing. A filter must reject unwanted pulses without hiding valid ones, so its settings depend on the peripheral and signal speed. Keep the actual configuration in the driver documentation; see [I2C initialization](/architecture/peripheral/i2c/#initialization) for an example.

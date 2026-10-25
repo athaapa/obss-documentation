@@ -6,7 +6,7 @@ authors:
 
 SysTick is a timer built into the CPU core. We use it to count time, wait between operations, and stop drivers from waiting forever when hardware doesn't answer. The code is in `src/peripheral/systick.c` and `src/peripheral/systick.h`.
 
-The timer counts down, then starts again. Each time it finishes a countdown, it requests an *interrupt*: a short pause in normal execution to run a handler. Our handler adds one to a counter called `elapsed_ms`. With the expected clock setup, each tick represents one millisecond.
+The timer counts down, then starts again. Each time it finishes a countdown, it requests an *interrupt*: a short pause in normal execution to run a handler. Our handler adds one to a counter called `elapsed_ms`. With the expected clock setup, each countdown takes one millisecond.
 
 For example, with a 64 MHz SysTick clock, 64,000 clock cycles take 1 ms. Set the reload value to 63,999 because the count includes zero:
 
@@ -40,7 +40,7 @@ void example(void) {
 
 Call `systick_init()` during startup, before code that needs timing. The [I2C driver](/architecture/peripheral/i2c/), for example, uses this counter for its timeouts.
 
-## Using the driver
+## Usage
 
 ```c
 void systick_init();
@@ -54,7 +54,7 @@ uint32_t systick_now_ms(void);
 
 `systick_delay()` waits in an empty loop until enough ticks have passed. This is a *busy wait*: the CPU keeps checking the counter instead of returning to the caller. Interrupts can still run. Passing `0` returns immediately.
 
-## Using it for timeouts
+## Timeouts
 
 A timeout puts a limit on how long we wait for something. Save the count before starting the wait, then use `systick_now_ms() - start_ms` to check how much time has passed. If the hardware still isn't ready after the limit, stop waiting and report an error.
 
@@ -85,9 +85,9 @@ Unlike `systick_delay()`, this loop returns as soon as the device is ready. It s
 
 Use `>=` so the timeout triggers once the elapsed count reaches the limit, even if you miss the exact tick. SysTick interrupts must keep running for this check to work.
 
-## How the timer is configured
+## Initialization
 
-In `systick_init()`, we write three registers:
+`systick_init()` writes three registers:
 
 | Register | What we configure |
 | --- | --- |
@@ -103,13 +103,13 @@ The countdown takes 480,000 processor clock cycles. At 480 MHz, that gives one t
 
 The reload value is hard-coded. Although the file also defines `CLOCK_FREQ`, the code doesn't use it to calculate the reload value. Changing that constant alone won't change the timing.
 
-## How we count ticks
+## Tick counting
 
 The Cortex-M7 vector table in `src/internal/vtable.c` connects SysTick to `cm7_systick_exc_handler()`. The handler increments `elapsed_ms`, a `volatile uint32_t`. The `volatile` qualifier tells the compiler to read the counter again when we check it, because an interrupt can change it between reads.
 
 The counter wraps back to zero after about 49.7 days at one tick per millisecond. Use unsigned subtraction for elapsed time, as in the example above, rather than comparing against `start_ms + delay`. Subtraction works across a wrap as long as the measured interval is less than a full counter cycle.
 
-## Things to watch for
+## Limitations and troubleshooting
 
 :::caution[SysTick must keep running]
 Don't call `systick_delay()` or use a SysTick-based timeout while blocking the SysTick interrupt. The counter won't advance, so the wait can hang. This also applies inside an interrupt handler that SysTick can't interrupt.

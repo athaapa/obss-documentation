@@ -6,7 +6,7 @@ authors:
 
 The I2C driver lets the flight computer talk to small chips, like sensors, over two shared wires. SCL carries the clock and SDA carries the data. Our microcontroller is the *controller*: it runs the clock and starts every conversation. The chips it talks to are *targets*. Older docs call these "master" and "slave." Each target on the bus has its own 7-bit *address*, like `0x40`, so the controller can pick which one it's talking to.
 
-Every conversation follows the same pattern. The controller sends a *START* signal to claim the bus. Then it sends the target's address, plus one extra bit that says whether it wants to read or write. The target answers with an *ACK* ("I'm here, go ahead") or a *NACK* ("no"). If nobody has that address, the controller also sees a NACK. Next, data goes back and forth one byte at a time, and whoever receives each byte answers with an ACK. Finally, the controller sends a *STOP* to end the conversation and free the bus.
+Every conversation follows the same pattern. The controller sends a *START* signal to claim the bus. Then it sends the target's address, plus one extra bit that says whether it wants to read or write. The target answers with an *ACK* ("I'm here, go ahead") or a *NACK* ("no"). If nobody has that address, the controller also sees a NACK. Next, data goes back and forth one byte at a time, and whoever receives each byte answers with an ACK or NACK. During a read, the controller sends a NACK after the final byte to end the read. Finally, the controller sends a *STOP* to end the conversation and free the bus.
 
 The code is in `src/peripheral/i2c.c` and `src/peripheral/i2c.h`. The chip has four copies of the I2C hardware, called *instances* (I2C1 through I2C4), and each one has its own pair of wires. This driver only supports I2C1. Our only I2C device right now is the INA233 current sensor, so one instance is enough, and it keeps the code simple.
 
@@ -45,7 +45,7 @@ void example(void) {
 
 This example writes `0x4127` to the INA233's `MFR_ADC_CONFIG` [register](/architecture/peripheral/fundamentals/registers/#device-registers), which is number `0xD0`. The INA233 expects the low byte first, so the bytes go out as `0xD0`, `0x27`, and then `0x41`. Address `0x40` assumes both of its address pins connect to ground.
 
-## Using the driver
+## Usage
 
 ```c
 void i2c_init(uint8_t inst, enum ti_errc_t *errc);
@@ -53,21 +53,21 @@ void i2c_write(uint8_t inst, uint32_t addr, void *buf, uint8_t size, enum ti_err
 void i2c_read(uint8_t inst, uint32_t addr, void *buf, uint8_t size, enum ti_errc_t *errc);
 ```
 
-Call `i2c_init()` once at startup, after `systick_init()`. The driver uses [SysTick for timeouts](/architecture/peripheral/systick/#using-it-for-timeouts).
+Call `i2c_init()` once at startup, after `systick_init()`. The driver uses [SysTick for timeouts](/architecture/peripheral/systick/#timeouts).
 
 Pass `1` for `inst` and the target's 7-bit address for `addr`.
 
 For a write, `buf` holds the bytes to send. For a read, the driver fills it with the bytes it receives. It needs room for at least `size` bytes, and `size` can be 1 to 255. Check `errc` after every call. `TI_ERRC_NONE` means the transfer was successful.
 
-### Reading a register
+### Register reads
 
 To read a register, you first write the register number, then read its value. With this driver, that takes two calls: `i2c_write()` with the register number, then `i2c_read()`.
 
 The hardware sends a STOP at the end of every call, so each call is self-contained.
 
-## What `i2c_init()` does
+## Initialization
 
-After checking that `inst` is `1`, the driver enables the [clock for GPIO port B](/architecture/peripheral/fundamentals/clocks/#enabling-a-peripheral-clock).
+After checking that `inst` is `1`, the driver enables the [clock for GPIO port B](/architecture/peripheral/fundamentals/clocks/#peripheral-clock-enables).
 
 It configures PB6 (SCL) and PB7 (SDA) in [alternate function mode](/architecture/peripheral/fundamentals/gpio/#alternate-functions), selecting AF4 for I2C1. Both pins use [open-drain outputs with pull-up resistors](/architecture/peripheral/fundamentals/gpio/#open-drain-and-pull-ups) on the bus lines.
 
@@ -75,7 +75,7 @@ The driver enables HSI and selects it as I2C1’s [clock source](/architecture/p
 
 With I2C1 disabled, the driver configures its [registers](/architecture/peripheral/fundamentals/registers/#memory-mapped-registers): it enables the analog [noise filter](/architecture/peripheral/fundamentals/gpio/#noise-filters) by clearing `ANFOFF`, disables digital filtering by setting `DNF` to zero, and writes the bus timing values below. Then it enables I2C1. Chapter 50 of the [STM32 reference manual](https://www.st.com/resource/en/reference_manual/dm00176879-stm32h745-755-and-stm32h747-757-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf) documents the registers.
 
-### Where the pin settings come from
+### Pin configuration
 
 In `i2c.c`, the pins show up as `INST1_SCL_PIN` (133) and `INST1_SDA_PIN` (134), not as PB6 and PB7. Those numbers and the AF4 setting come from three places: the board schematic, the datasheet, and `gpio.h`. Adding an I2C instance or moving to different pins means going through the same steps. A new instance also needs its own clock settings.
 
@@ -83,7 +83,7 @@ See [Find pins in Altium](/how-to/find-pins-altium/) for more information.
 
 ### Bus speed
 
-The `TIMINGR` register divides the 64 MHz HSI clock to set how fast SCL ticks. We use 100 kHz because it's the standard I2C speed and every I2C device supports it.
+The `TIMINGR` register divides the 64 MHz HSI clock to set how fast SCL ticks. We use 100 kHz, the I2C Standard-mode speed.
 
 | Field | Value | What it does |
 | --- | ---: | --- |
@@ -97,7 +97,7 @@ The `TIMINGR` register divides the 64 MHz HSI clock to set how fast SCL ticks. W
 
 The two delays exist because devices read SDA while SCL is high. SDA has to settle before SCL rises, and it can't change again until SCL falls. Changing the clock source means recalculating all of these values. Chapter 50 of the reference manual has example tables, and STM32CubeMX can calculate them.
 
-## What happens during a transfer
+## Transfer sequence
 
 The I2C hardware drives the wires and follows the conversation pattern from the top of this page. The driver tells it what to do, then gives it bytes or collects them.
 
@@ -105,9 +105,9 @@ First, the driver waits for the bus to be free, in case another transfer is stil
 
 The driver [polls status flags](/architecture/peripheral/fundamentals/interrupts-and-polling/#polling) before transferring each byte. For a write, it waits for `TXIS` ("ready for the next byte") and then hands over a byte. For a read, it waits for `RXNE` ("a byte arrived") and copies it out. After the last byte, the hardware sends STOP. The driver waits for `STOPF` ("STOP sent") and clears it so the next transfer starts clean.
 
-The driver checks for errors at every wait. Reaching STOP doesn't mean the transfer worked, because the target may have sent a NACK along the way. Every wait also has a timeout. If a target stops answering, the driver gives up after about 100 ms and returns an error.
+The driver checks for errors at every wait. Reaching STOP doesn't mean the transfer worked, because the target may have sent a NACK along the way. Every wait also has a timeout. If a target stops answering, the driver stops waiting after about 100 ms and returns an error.
 
-## When things go wrong
+## Error handling
 
 | Error | What it means |
 | --- | --- |

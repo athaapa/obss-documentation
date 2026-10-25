@@ -6,7 +6,7 @@ authors:
 
 GPIO means *general-purpose input/output*. We use these pins to read a high or low voltage, or to drive a signal high or low. An input could tell us whether a device is ready. An output could control a chip's enable signal. We can also hand a pin over to a peripheral, like I2C or SPI, using [alternate function mode](/architecture/peripheral/fundamentals/gpio/#alternate-functions).
 
-The code is in `src/peripheral/gpio.c` and `src/peripheral/gpio.h`. The functions use the `tal_` prefix. They take a package pin number: PB0 is `49` in Titan's mapping, and PB6 is `133`. The number after the port letter isn't the number we pass to the driver.
+The code is in `src/peripheral/gpio.c` and `src/peripheral/gpio.h`. The functions use the `tal_` prefix. They take a package pin number: PB0 is `49` in Titan's mapping, and PB6 is `133`. The number after the port letter isn't the number you pass to the driver.
 
 ## Quick start
 
@@ -34,9 +34,9 @@ After configuration, `tal_set_pin(49, 1)` drives the output high and `tal_set_pi
 
 Set the intended initial output value before switching into output mode. Choose the mode, drain, speed, and pull settings for the circuit you are controlling.
 
-## Using the driver
+## Usage
 
-### Choosing a pin
+### Pin selection
 
 These functions take a **package pin number**, not a GPIO index. For example, PB6 is pin `133` in Titan’s lookup table. Passing `6` does not select PB6.
 
@@ -44,7 +44,7 @@ Use the table in `gpio.h` and the [Altium pin guide](/how-to/find-pins-altium/) 
 
 ### Pin settings
 
-| Function | Values / result |
+| Function | Values and result |
 | --- | --- |
 | `tal_set_mode(pin, mode)` | `0`: input, `1`: output, `2`: alternate function, `3`: analog. |
 | `tal_set_drain(pin, drain)` | `0`: push-pull, `1`: open-drain. |
@@ -58,7 +58,7 @@ Use the table in `gpio.h` and the [Altium pin guide](/how-to/find-pins-altium/) 
 
 The speed setting controls output edge behavior, not how often the pin toggles. It doesn't set a UART baud rate, SPI clock, or PWM frequency.
 
-### Reading an input
+### Input reads
 
 ```c
 #include <stdbool.h>
@@ -82,7 +82,7 @@ bool input_is_high(void) {
 
 `tal_read_pin()` reads the input data register and returns `true` for a high level. It doesn't debounce a button or interpret whether that level means pressed, ready, or active. If the circuit needs an internal pull, select it with `tal_pull_pin()`.
 
-### Selecting an alternate function
+### Alternate functions
 
 For a peripheral signal, configure both the GPIO mode and its AF selection. This is the GPIO portion of an I2C1 SCL setup on PB6:
 
@@ -106,7 +106,7 @@ bool scl_pin_init(void) {
 
 This only configures the pin. It doesn't initialize I2C1 or configure SDA. Use [the I2C driver](/architecture/peripheral/i2c/) for a complete transfer setup. In alternate function mode, the selected peripheral controls the signal.
 
-## What the driver does
+## Implementation
 
 The driver looks up the package pin number in a table in `gpio.c`. Each entry contains a port and an index within that port. For example, pin `133` maps to port B, index 6. The driver uses those two values to select the [register and field](/architecture/peripheral/fundamentals/registers/) to change.
 
@@ -118,7 +118,7 @@ The driver looks up the package pin number in a table in `gpio.c`. Each entry co
 
 Enable the port clock before configuring or accessing its pins. Clock control applies to the **whole port**, not just the pin passed to the function. Disabling the clock for PB6 also affects other GPIO pins on port B. The driver doesn't track how many callers use that port, so don't disable a shared clock while another driver needs it.
 
-## When things go wrong
+## Troubleshooting
 
 If an output doesn't change, check the package pin number, port clock, and mode first. A pin in input mode won't drive the value you wrote to the output register. In alternate function mode, the peripheral controls the signal, so check its setup too.
 

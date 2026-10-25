@@ -6,9 +6,9 @@ authors:
 
 We use `enum ti_errc_t` to report what went wrong in a driver. `TI_ERRC_NONE` means success; the other values describe a failure. The definitions are in `src/peripheral/errc.h`. The flash-backed logger is in `src/peripheral/errc.c`.
 
-## Checking an error
+## Error checking
 
-Many drivers take an error pointer as their last argument. Give the function somewhere to store the result, then check it before using the output or starting another operation:
+Many drivers take an error pointer as their last argument. Pass a pointer to an error-code variable, then check the code before using the output or starting another operation:
 
 ```c
 #include "peripheral/errc.h"
@@ -30,7 +30,7 @@ void example(void) {
 
 Check each call's result before another call overwrites it. An error doesn't necessarily mean nothing happened: a failed transfer may have sent or received some bytes already. The driver page explains what its errors mean and what cleanup it performs.
 
-## Choosing a code
+## Error codes
 
 | Code | Use it for |
 | --- | --- |
@@ -46,7 +46,7 @@ Check each call's result before another call overwrites it. An error doesn't nec
 | `TI_ERRC_INTERNAL` | A bug or unexpected internal state despite valid inputs. |
 | `TI_ERRC_UNKNOWN` | An unclassified failure, when no more specific code fits. |
 
-## Reporting an error in a driver
+## Error reporting
 
 Use `TI_SET_ERRC` to set the caller's error code and submit a log entry:
 

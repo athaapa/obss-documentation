@@ -14,7 +14,7 @@ Use the board schematic, STM32 datasheet, and Titan GPIO lookup table to find th
 
 1. ## Find the pins in Altium
 
-   The board's Altium project shows which chip pins connect to each device. Open `titan_flight_computer_controller_board`, then go to *Source Documents* > *titan_flight_computer_controller_board* > *MCU_IO*. That sheet lists the microcontroller's pins. Each pin has a *net label* that names the wire it connects to. A net is everything one wire connects together.
+   The board's Altium project shows which chip pins connect to each device. Open `titan_flight_computer_controller_board`, then go to **Source Documents** > **titan_flight_computer_controller_board** > **MCU_IO**. That sheet lists the microcontroller's pins. Each pin has a *net label* that names the wire it connects to. A net is everything one wire connects together.
 
    Use <kbd>Ctrl</kbd>+<kbd>F</kbd> to search for the signal’s net name. <kbd>Alt</kbd>+click a wire to highlight its whole net. Follow the net to the microcontroller and record its GPIO name, such as `PB6` (port B, pin 6).
 
